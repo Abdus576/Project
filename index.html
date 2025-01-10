@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A simple student registration system allowing users to add, edit, and delete student records.">
+    <title>Student Registration System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background: #007BFF;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        #form-section, #display-section {
+            background: #fff;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form label {
+            display: block;
+            margin: 0.5rem 0 0.2rem;
+        }
+
+        form input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background: #007BFF;
+            color: #fff;
+        }
+
+        table tbody tr:nth-child(odd) {
+            background: #f9f9f9;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Student Registration System</h1>
+        <p>Register students, manage records, and enhance your administration efficiency.</p>
+    </header>
+
+    <main>
+        <section id="form-section">
+            <h2>Register Student</h2>
+            <form id="registration-form">
+                <label for="student-name">Student Name:</label>
+                <input type="text" id="student-name" name="student-name" required>
+
+                <label for="student-id">Student ID:</label>
+                <input type="number" id="student-id" name="student-id" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="contact">Contact Number:</label>
+                <input type="tel" id="contact" name="contact" required>
+
+                <button type="button" id="add-student">Add Student</button>
+            </form>
+        </section>
+
+        <section id="display-section">
+            <h2>Registered Students</h2>
+            <table id="students-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows will be added here -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('add-student').addEventListener('click', function () {
+            const name = document.getElementById('student-name').value.trim();
+            const id = document.getElementById('student-id').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const contact = document.getElementById('contact').value.trim();
+
+            if (!name || !id || !email || !contact) {
+                alert('Please fill out all fields.');
+                return;
+            }
+
+            if (!/^[a-zA-Z ]+$/.test(name)) {
+                alert('Name can only contain letters and spaces.');
+                return;
+            }
+
+            if (!/^[0-9]+$/.test(id)) {
+                alert('ID must be numeric.');
+                return;
+            }
+
+            if (!/^[0-9]+$/.test(contact)) {
+                alert('Contact number must be numeric.');
+                return;
+            }
+
+            const tableBody = document.querySelector('#students-table tbody');
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${id}</td>
+                <td>${email}</td>
+                <td>${contact}</td>
+                <td>
+                    <button class="edit">Edit</button>
+                    <button class="delete">Delete</button>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+
+            row.querySelector('.delete').addEventListener('click', function () {
+                tableBody.removeChild(row);
+            });
+
+            row.querySelector('.edit').addEventListener('click', function () {
+                document.getElementById('student-name').value = name;
+                document.getElementById('student-id').value = id;
+                document.getElementById('email').value = email;
+                document.getElementById('contact').value = contact;
+
+                tableBody.removeChild(row);
+            });
+
+            localStorage.setItem('students', tableBody.innerHTML);
+        });
+
+        window.onload = function () {
+            const savedData = localStorage.getItem('students');
+            if (savedData) {
+                document.querySelector('#students-table tbody').innerHTML = savedData;
+
+                document.querySelectorAll('.delete').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const row = button.parentElement.parentElement;
+                        row.parentElement.removeChild(row);
+                        localStorage.setItem('students', document.querySelector('#students-table tbody').innerHTML);
+                    });
+                });
+
+                document.querySelectorAll('.edit').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const row = button.parentElement.parentElement;
+                        document.getElementById('student-name').value = row.cells[0].textContent;
+                        document.getElementById('student-id').value = row.cells[1].textContent;
+                        document.getElementById('email').value = row.cells[2].textContent;
+                        document.getElementById('contact').value = row.cells[3].textContent;
+                        row.parentElement.removeChild(row);
+                        localStorage.setItem('students', document.querySelector('#students-table tbody').innerHTML);
+                    });
+                });
+            }
+        };
+    </script>
+</body>
+</html>
